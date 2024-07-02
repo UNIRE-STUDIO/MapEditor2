@@ -28,14 +28,18 @@ namespace MapEditor2
         private static int grid = 16;
 
         private Dictionary<int, BitmapImage> sprites = new Dictionary<int, BitmapImage>();
+        private Dictionary<TextBox, int> textBoxSprites = new Dictionary<TextBox, int>();
         private BitmapImage[] backgroundTiles = { new BitmapImage(new Uri(@"sprites\block03-1.png", UriKind.Relative)),
                                                   new BitmapImage(new Uri(@"sprites\block03-2.png", UriKind.Relative)),
-                                                  new BitmapImage(new Uri(@"sprites\block03-3.png", UriKind.Relative)),                        new BitmapImage(new Uri(@"sprites\block03-4.png", UriKind.Relative))};
+                                                  new BitmapImage(new Uri(@"sprites\block03-3.png", UriKind.Relative)),                        
+                                                  new BitmapImage(new Uri(@"sprites\block03-4.png", UriKind.Relative))};
         private int[,] map = new int[sizeY, sizeX];
         private Image[,] images;
 
         private int selectedId = 0;
         private bool mouseDown = false;
+
+        private bool showOutput = false;
         public MainWindow()
         {
             InitializeComponent();
@@ -54,7 +58,6 @@ namespace MapEditor2
                     myCanvas.Children.Add(images[i,j]);
                 }
             }
-            
         }
 
         private void UpdateCanvas()
@@ -132,8 +135,16 @@ namespace MapEditor2
 
         private void clearAll_Click(object sender, RoutedEventArgs e)
         {
-            map = new int[sizeY, sizeX];
-            UpdateCanvas();
+            MessageBoxResult result = MessageBox.Show(
+                "Вы уверены, что хотите очистить всю область? P.S Кнопку назад я ещё не реализовал",
+                "Очистить всю область",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Information);
+            if (result == MessageBoxResult.Yes) 
+            {
+                map = new int[sizeY, sizeX];
+                UpdateCanvas();
+            }
         }
 
         private void erasing_Click(object sender, RoutedEventArgs e)
@@ -157,11 +168,12 @@ namespace MapEditor2
                     img.Height = 32;
                     BitmapImage bi = new BitmapImage(new Uri(fs.Name));
                     img.Source = bi;
-                    int id = (sprites.Count + 4);
+                    int id = (sprites.Count + 1);
                     sprites.Add(id, bi);
+                    
                     sp.Children.Add(img);
                     TextBox tb = new TextBox();
-                    tb.Text = (sprites.Count-1 + 4).ToString();
+                    tb.Text = (sprites.Count).ToString();
                     tb.FontSize = 9;
                     tb.FontWeight = FontWeights.Bold;
                     tb.HorizontalAlignment = HorizontalAlignment.Center;
@@ -170,6 +182,14 @@ namespace MapEditor2
                     tb.Foreground = new SolidColorBrush(Color.FromArgb(255, 214, 214, 214));
                     tb.Width = 32;
                     tb.TextAlignment = TextAlignment.Center;
+                    tb.TextChanged += (sender, e) =>
+                    {
+                        if (int.TryParse(tb.Text, out int num))
+                        {
+
+                        }
+                    };
+                    textBoxSprites.Add(tb, id);
                     sp.Children.Add(tb);
                     sp.Name = 'i' + id.ToString();
                     sp.MouseDown += (panel, ee) => {
@@ -180,8 +200,32 @@ namespace MapEditor2
                     itemsPanel.Children.Remove(b);
                     itemsPanel.Children.Add(sp);
                     itemsPanel.Children.Add(b);
+                    selectedId = id;
                 }
             }
+        }
+
+        private void copyMap_Click(object sender, RoutedEventArgs e)
+        {
+            Clipboard.SetText(output.Text);
+        }
+
+        private void showOutputButton_Click(object sender, RoutedEventArgs e)
+        {
+            showOutput = !showOutput;
+            if(showOutput)
+            {
+                showOutputButton.Content = "Скрыть вывод";
+                outputRow.MinHeight = 30;
+                outputRow.Height = new GridLength(50, GridUnitType.Pixel);
+            }
+            else
+            {
+                outputRow.MinHeight = 0;
+                outputRow.Height = new GridLength(0, GridUnitType.Pixel);
+                showOutputButton.Content = "Показать вывод";
+            }
+            
         }
     }
 }

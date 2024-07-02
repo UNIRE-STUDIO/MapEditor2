@@ -8,17 +8,18 @@
         Title="MapEditor2 for Tanks 2D" Height="550" Width="800" Icon="/sprites/brick.png">
     <Grid Background="#FF1F1F1F" >
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="248*"></ColumnDefinition>
-            <ColumnDefinition Width="407*"/>
-            <ColumnDefinition Width="145*"></ColumnDefinition>
+            <ColumnDefinition Width="248*"/>
+            <ColumnDefinition Width="259*"/>
+            <ColumnDefinition Width="145*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
             <RowDefinition Height="15*"/>
-            <RowDefinition Height="4*"/>
+            <RowDefinition x:Name="outputRow"  Height="0"/>
             <RowDefinition Height="25"/>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Background="#FF1F1F1F" Grid.ColumnSpan="3" Margin="0,0,145,0">
+        <!--Верхняя панель-->
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Background="#FF1F1F1F" Grid.ColumnSpan="3">
             <Button x:Name="clearAll" Width="25" Margin="5 2" Click="clearAll_Click" Content="🗑️" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="#FFD8D8D8"/>
             <Button x:Name="erasing" Width="25"  Margin="5 2" BorderBrush="{x:Null}" Click="erasing_Click" Foreground="{x:Null}">
                 <Button.Background>
@@ -26,16 +27,25 @@
                 </Button.Background>
             </Button>
         </StackPanel>
-        <Border Grid.Column="0" Grid.Row="1" BorderBrush="#FF3D3D3D" BorderThickness="1" Margin="4,4,4,4" Background="#FF1A1A1A" Grid.ColumnSpan="2">
+        <!--Canvas-->
+        <Border Grid.Column="0" Grid.Row="1" BorderBrush="#FF3D3D3D" BorderThickness="1" Margin="4,4,4,4" Background="#FF1A1A1A" Grid.ColumnSpan="3">
             <Canvas x:Name="myCanvas" MouseDown="myCanvas_MouseDown" MouseMove="myCanvas_MouseMove" MouseUp="myCanvas_MouseUp"/>
         </Border>
-        <Border Grid.Row="1" Grid.Column="2" Grid.RowSpan="2" BorderBrush="#FF3D3D3D" Margin="4,4,4,4" Background="#FF1A1A1A" BorderThickness="1">
+        <!--Tiles-->
+        <Border Grid.Row="1" Grid.Column="3" BorderBrush="#FF3D3D3D" Margin="4,4,4,4" Background="#FF1A1A1A" BorderThickness="1">
             <WrapPanel x:Name="itemsPanel">
                 <Button x:Name="addSprite" Content="+" Background="{x:Null}" Foreground="#FFD6D6D6" FontWeight="Bold" FontSize="24" FontFamily="Cascadia Code" Width="32" Margin="5" Click="addSprite_Click"/>
             </WrapPanel>
         </Border>
-        <TextBox x:Name="output" Grid.Row="2" Grid.Column="0" Text="00000000000000"  TextWrapping="Wrap" BorderBrush="#FF3D3D3D" Margin="4,4,4,4" Background="#FF1E1E1E" Foreground="#FFD6D6D6" Grid.ColumnSpan="2"/>
-        <GridSplitter Grid.Row="1" Grid.Column="0" Height="2" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="#FF1E1E1E" Grid.ColumnSpan="3" Margin="0,378,145,0" Grid.RowSpan="2"/>
-        <Label x:Name="point" Grid.Column="0" Grid.Row="2" Foreground="#FFD6D6D6" Content="90 x 65" FontSize="10" Grid.ColumnSpan="3" Margin="0,101,145,0" Grid.RowSpan="2"/>
+        <!--Вывод-->
+        <TextBox x:Name="output" Grid.Row="2" Grid.Column="0" Text=""  TextWrapping="Wrap" BorderBrush="#FF3D3D3D" Background="#FF1E1E1E" Foreground="#FFD6D6D6" Grid.ColumnSpan="3"/>
+        <GridSplitter Grid.Row="2" Grid.Column="0" Height="2" HorizontalAlignment="Stretch" VerticalAlignment="Top" Grid.ColumnSpan="3" Background="#FF1F1F1F"/>
+        <StackPanel Grid.Column="0" Grid.Row="3" Orientation="Horizontal">
+            <Label x:Name="point" Foreground="#FFD6D6D6" Content="90 x 65" FontSize="10"/>
+        </StackPanel>
+        <StackPanel Grid.Column="1" Grid.Row="3" Orientation="Horizontal" FlowDirection="RightToLeft">
+            <Button x:Name="copyMap" Content="В буфер" Width="100" Height="22" Click="copyMap_Click"/>
+            <Button x:Name="showOutputButton" Content="Показать вывод" Width="100" Height="22" Margin="10,0" Click="showOutputButton_Click"/>
+        </StackPanel>
     </Grid>
 </Window>
