@@ -35,14 +35,17 @@ namespace MapEditor2
                                                   new BitmapImage(new Uri(@"sprites\block03-4.png", UriKind.Relative))};
         private int[,] map = new int[sizeY, sizeX];
         private Image[,] images;
-
         private int selectedId = 0;
         private bool mouseDown = false;
-
         private bool showOutput = false;
+        private Rectangle selectionRectangle;
         public MainWindow()
         {
             InitializeComponent();
+            selectionRectangle = new Rectangle();
+            selectionRectangle.Width = grid;
+            selectionRectangle.Height = grid;
+            selectionRectangle.Stroke = Brushes.Gray;
             images = new Image[sizeY, sizeX];
             for (int i = 0; i < sizeY; i++)
             {
@@ -58,6 +61,7 @@ namespace MapEditor2
                     myCanvas.Children.Add(images[i,j]);
                 }
             }
+            myCanvas.Children.Add(selectionRectangle);
         }
 
         private void UpdateCanvas()
@@ -135,6 +139,10 @@ namespace MapEditor2
             int posX = (int)(e.GetPosition(myCanvas).X / grid);
             int posY = (int)(e.GetPosition(myCanvas).Y / grid);
             point.Content = $"{posX} x {posY}";
+
+            Canvas.SetTop(selectionRectangle, posY * grid);
+            Canvas.SetLeft(selectionRectangle, posX * grid);
+
             if (!mouseDown) return;
             if (posX >= sizeX || posY >= sizeY)
             {
