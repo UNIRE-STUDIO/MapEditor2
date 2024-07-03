@@ -26,20 +26,23 @@
                     <ImageBrush ImageSource="/assets/lastik.png"/>
                 </Button.Background>
             </Button>
+            <Slider x:Name="brushSize" Width="50" VerticalAlignment="Center" Margin="5 2" Maximum="6" SmallChange="1" Value="1" Minimum="1" ValueChanged="brushSize_ValueChanged" IsSnapToTickEnabled="True"/>
+            <Label Content="{Binding ElementName=brushSize, Path=Value}" Foreground="#FFD6D6D6"/>
         </StackPanel>
         <!--Canvas-->
         <Border Grid.Column="0" Grid.Row="1" BorderBrush="#FF3D3D3D" BorderThickness="1" Margin="4,4,4,4" Background="#FF1A1A1A" Grid.ColumnSpan="3">
-            <Canvas x:Name="myCanvas" MouseDown="myCanvas_MouseDown" MouseMove="myCanvas_MouseMove" MouseUp="myCanvas_MouseUp"/>
+            <Canvas x:Name="myCanvas" MouseDown="myCanvas_MouseDown" MouseMove="myCanvas_MouseMove" MouseUp="myCanvas_MouseUp" Margin="4"/>
         </Border>
         <!--Tiles-->
-        <Border Grid.Row="1" Grid.Column="3" BorderBrush="#FF3D3D3D" Margin="4,4,4,4" Background="#FF1A1A1A" BorderThickness="1">
+        <Border Grid.Row="1" Grid.Column="3" BorderBrush="#FF3D3D3D" Margin="4,4,4,4" Background="#FF1A1A1A" BorderThickness="1" Grid.RowSpan="2">
             <WrapPanel x:Name="itemsPanel">
                 <Button x:Name="addSprite" Content="+" Background="{x:Null}" Foreground="#FFD6D6D6" FontWeight="Bold" FontSize="24" FontFamily="Cascadia Code" Width="32" Margin="5" Click="addSprite_Click"/>
             </WrapPanel>
         </Border>
         <!--Вывод-->
-        <TextBox x:Name="output" Grid.Row="2" Grid.Column="0" Text=""  TextWrapping="Wrap" BorderBrush="#FF3D3D3D" Background="#FF1E1E1E" Foreground="#FFD6D6D6" Grid.ColumnSpan="3"/>
-        <GridSplitter Grid.Row="2" Grid.Column="0" Height="2" HorizontalAlignment="Stretch" VerticalAlignment="Top" Grid.ColumnSpan="3" Background="#FF1F1F1F"/>
+        <TextBox x:Name="output" Grid.Row="2" Grid.Column="0" Text="" Margin="4,4,4,4" TextWrapping="Wrap" BorderBrush="#FF3D3D3D" Background="#FF1E1E1E" Foreground="#FFD6D6D6" Grid.ColumnSpan="2"/>
+        <GridSplitter Grid.Row="2" Grid.Column="0" Height="2" HorizontalAlignment="Stretch" VerticalAlignment="Top" Grid.ColumnSpan="2" Background="#FF1F1F1F"/>
+        
         <StackPanel Grid.Column="0" Grid.Row="3" Orientation="Horizontal">
             <Label x:Name="point" Foreground="#FFD6D6D6" Content="90 x 65" FontSize="10"/>
         </StackPanel>

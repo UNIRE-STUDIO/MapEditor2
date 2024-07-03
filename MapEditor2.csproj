@@ -5,6 +5,7 @@
     <TargetFramework>net7.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
+    <PackageIcon>brick.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,7 +15,6 @@
     <None Remove="sprites\block03-2.png" />
     <None Remove="sprites\block03-3.png" />
     <None Remove="sprites\block03-4.png" />
-    <None Remove="sprites\brick.png" />
     <None Remove="sprites\water.png" />
   </ItemGroup>
 
@@ -35,6 +35,13 @@
     <Resource Include="sprites\brick.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="sprites\brick.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
