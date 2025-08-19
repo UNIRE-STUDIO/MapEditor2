@@ -106,9 +106,11 @@ namespace MapEditor2
                 {
                     stringBuilder.Append(map[i, j].ToString() + ',');
                     if (j == sizeX - 1) stringBuilder.Remove(stringBuilder.Length - 1, 1);
+                    if (j % 2 == 1) stringBuilder.Append("  ");
                 }
-                stringBuilder.Append("],");
-                if (i == sizeY - 1) stringBuilder.Remove(stringBuilder.Length - 1, 1);
+                stringBuilder.Append("],\n");
+                if (i == sizeY - 1) stringBuilder.Remove(stringBuilder.Length - 2, 1);
+                if (i % 2 == 1) stringBuilder.Append('\n');
             }
             output.Text += stringBuilder.ToString();
             output.Text += ']';
