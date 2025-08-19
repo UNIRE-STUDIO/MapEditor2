@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MapEditor2"
         mc:Ignorable="d"
-        Title="MapEditor2 for Tanks 2D" Height="550" Width="800" Icon="/sprites/brick.png">
+        Title="MapEditor2 for Tanks 2D/3D" Height="550" Width="800" Icon="/sprites/brick.png">
     <Grid Background="#FF1F1F1F" >
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="248*"/>
@@ -19,15 +19,24 @@
             <RowDefinition Height="25"/>
         </Grid.RowDefinitions>
         <!--Верхняя панель-->
-        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Background="#FF1F1F1F" Grid.ColumnSpan="3">
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Background="#FF404040" Grid.ColumnSpan="3">
             <Button x:Name="clearAll" Width="25" Margin="5 2" Click="clearAll_Click" Content="🗑️" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="#FFD8D8D8"/>
             <Button x:Name="erasing" Width="25"  Margin="5 2" BorderBrush="{x:Null}" Click="erasing_Click" Foreground="{x:Null}">
                 <Button.Background>
                     <ImageBrush ImageSource="/assets/lastik.png"/>
                 </Button.Background>
             </Button>
-            <Slider x:Name="brushSize" Width="50" VerticalAlignment="Center" Margin="5 2" Maximum="6" SmallChange="1" Value="1" Minimum="1" ValueChanged="brushSize_ValueChanged" IsSnapToTickEnabled="True"/>
-            <Label Content="{Binding ElementName=brushSize, Path=Value}" Foreground="#FFD6D6D6"/>
+            <StackPanel Orientation="Horizontal" Background="#FF2F2F2F">
+                <Slider x:Name="brushSize" Width="50" VerticalAlignment="Center" Margin="5 2" Maximum="6" SmallChange="1" Value="1" Minimum="1" ValueChanged="brushSize_ValueChanged" IsSnapToTickEnabled="True"/>
+                <Label Content="{Binding ElementName=brushSize, Path=Value}" Foreground="#FFD6D6D6"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="5 0">
+                <Label Foreground="#FFAFAFAF">x:</Label>
+                <TextBox x:Name="sizeXTextBox" TextWrapping="NoWrap" Text="10" Width="30" Height="20" HorizontalAlignment="Left" TextAlignment="Center" Background="#FF272727" BorderBrush="{x:Null}" Foreground="#FFAFAFAF" SelectionBrush="#CC2D74FF" SelectionTextBrush="{x:Null}" PreviewTextInput="sizeXTextBox_PreviewTextInput" MaxLines="1" MaxLength="3"/>
+                <Label Foreground="#FFAFAFAF">y:</Label>
+                <TextBox x:Name="sizeYTextBox" TextWrapping="NoWrap" Text="10" Width="30" Height="20" HorizontalAlignment="Left" TextAlignment="Center" Background="#FF272727" BorderBrush="{x:Null}" Foreground="#FFAFAFAF" SelectionBrush="#CC2D74FF" SelectionTextBrush="{x:Null}" PreviewTextInput="sizeYTextBox_PreviewTextInput" MaxLength="3" MaxLines="1"/>
+                <Button Content="OK" Margin="10 0" Height="20" Width="25" Click="Button_Click"/>
+            </StackPanel>
         </StackPanel>
         <!--Canvas-->
         <Border Grid.Column="0" Grid.Row="1" BorderBrush="#FF3D3D3D" BorderThickness="1" Margin="4,4,4,4" Background="#FF1A1A1A" Grid.ColumnSpan="3">

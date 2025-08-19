@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -23,8 +24,8 @@ namespace MapEditor2
     /// </summary>
     public partial class MainWindow : Window
     {
-        private static int sizeX = 34;
-        private static int sizeY = 20;
+        private static int sizeX = 0;
+        private static int sizeY = 0;
         private static int grid = 16;
         private int brushSizeValue = 1;
 
@@ -39,9 +40,12 @@ namespace MapEditor2
         private bool mouseDown = false;
         private bool showOutput = false;
         private Rectangle selectionRectangle;
+
         public MainWindow()
         {
             InitializeComponent();
+            sizeX = int.Parse(sizeXTextBox.Text);
+            sizeY = int.Parse(sizeYTextBox.Text);
             selectionRectangle = new Rectangle();
             selectionRectangle.Width = grid;
             selectionRectangle.Height = grid;
@@ -251,6 +255,33 @@ namespace MapEditor2
         private void brushSize_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             brushSizeValue = (int)brushSize.Value;
+        }
+
+        private void sizeYTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            if (!int.TryParse(e.Text, out _)) {
+                e.Handled = true;
+            }
+        }
+
+        private void sizeXTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            if (!int.TryParse(e.Text, out _))
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (sizeYTextBox.Text.Length == 0 || sizeXTextBox.Text.Length == 0) { return; }
+
+            sizeY = int.Parse(sizeYTextBox.Text);
+            sizeX = int.Parse(sizeXTextBox.Text);
+            map = new int[sizeY, sizeX];
+            images = new Image[sizeY, sizeX];
+            UpdateOutput();
+            UpdateCanvas();
         }
     }
 }
