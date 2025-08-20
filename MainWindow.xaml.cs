@@ -34,7 +34,7 @@ namespace MapEditor2
                                                   new BitmapImage(new Uri(@"sprites\block03-2.png", UriKind.Relative)),
                                                   new BitmapImage(new Uri(@"sprites\block03-3.png", UriKind.Relative)),                        
                                                   new BitmapImage(new Uri(@"sprites\block03-4.png", UriKind.Relative))};
-        private int[,] map = new int[sizeY, sizeX];
+        private int[,] map;
         private Image[,] images;
         private int selectedId = 0;
         private bool mouseDown = false;
@@ -50,6 +50,7 @@ namespace MapEditor2
             selectionRectangle.Width = grid;
             selectionRectangle.Height = grid;
             selectionRectangle.Stroke = Brushes.Gray;
+            map = new int[sizeY, sizeX];
             images = new Image[sizeY, sizeX];
             for (int i = 0; i < sizeY; i++)
             {
@@ -144,6 +145,8 @@ namespace MapEditor2
         {
             int posX = (int)(e.GetPosition(myCanvas).X / grid);
             int posY = (int)(e.GetPosition(myCanvas).Y / grid);
+            posX = posX < sizeX ? posX : sizeX - 1; // Ограничивает квдрат выделения размерами карты
+            posY = posY < sizeY ? posY : sizeY - 1; // Ограничивает квдрат выделения размерами карты
             point.Content = $"{posX} x {posY}";
 
             Canvas.SetTop(selectionRectangle, posY * grid);
@@ -277,13 +280,48 @@ namespace MapEditor2
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             if (sizeYTextBox.Text.Length == 0 || sizeXTextBox.Text.Length == 0) { return; }
-
+            int oldSizeX = sizeX;
+            int oldSizeY = sizeY;
             sizeY = int.Parse(sizeYTextBox.Text);
             sizeX = int.Parse(sizeXTextBox.Text);
-            map = new int[sizeY, sizeX];
-            images = new Image[sizeY, sizeX];
-            UpdateOutput();
-            UpdateCanvas();
+            int[,] newMap = new int[sizeY, sizeX];
+            Image[,] newImages = new Image[sizeY, sizeX];
+            
+            // Новая ось больше старой? Если да то перечисляем её
+            for (int y = 0; y < (sizeY > oldSizeY ? sizeY : oldSizeY); y++)
+            {
+                // Новая ось больше старой? Если да то перечисляем её
+                for (int x = 0; x < (sizeX > oldSizeX ? sizeX : oldSizeX); x++)
+                {
+
+                    if (x < sizeX && y < sizeY)
+                    {
+                        if (x < oldSizeX && y < oldSizeY)
+                        {
+                            newImages[y, x] = images[y, x];
+                            newMap[y, x] = map[y, x];
+                        }
+
+                        if (newImages[y, x] == null)
+                        {
+                            Image img = new Image();
+                            img.Source = backgroundTiles[x % 2 + (y % 2) * 2];
+                            img.Width = grid;
+                            img.Height = grid;
+                            Canvas.SetTop(img, y * grid);
+                            Canvas.SetLeft(img, x * grid);
+                            newImages[y, x] = img;
+                            myCanvas.Children.Add(newImages[y, x]);
+                        }
+                    }// Если новая карта меньше старой, то удаляем более неиспользуемые картинки
+                    else if (x < oldSizeX && y < oldSizeY) 
+                    {
+                        myCanvas.Children.Remove(images[y, x]);
+                    }
+                }
+            }
+            map = newMap;
+            images = newImages;
         }
     }
 }
