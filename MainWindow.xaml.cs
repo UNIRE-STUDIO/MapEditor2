@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -39,17 +40,18 @@ namespace MapEditor2
         private int selectedId = 0;
         private bool mouseDown = false;
         private bool showOutput = false;
-        private Rectangle selectionRectangle;
+        private System.Windows.Shapes.Rectangle selectionRectangle;
 
         public MainWindow()
         {
             InitializeComponent();
             sizeX = int.Parse(sizeXTextBox.Text);
             sizeY = int.Parse(sizeYTextBox.Text);
-            selectionRectangle = new Rectangle();
+            selectionRectangle = new System.Windows.Shapes.Rectangle();
             selectionRectangle.Width = grid;
             selectionRectangle.Height = grid;
             selectionRectangle.Stroke = Brushes.Gray;
+            Canvas.SetZIndex(selectionRectangle, 1);
             map = new int[sizeY, sizeX];
             images = new Image[sizeY, sizeX];
             for (int i = 0; i < sizeY; i++)
@@ -148,7 +150,6 @@ namespace MapEditor2
             posX = posX < sizeX ? posX : sizeX - 1; // Ограничивает квдрат выделения размерами карты
             posY = posY < sizeY ? posY : sizeY - 1; // Ограничивает квдрат выделения размерами карты
             point.Content = $"{posX} x {posY}";
-
             Canvas.SetTop(selectionRectangle, posY * grid);
             Canvas.SetLeft(selectionRectangle, posX * grid);
 
