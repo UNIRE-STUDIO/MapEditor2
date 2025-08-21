@@ -40,17 +40,23 @@ namespace MapEditor2
         private int selectedId = 0;
         private bool mouseDown = false;
         private bool showOutput = false;
-        private System.Windows.Shapes.Rectangle selectionRectangle;
+        private System.Windows.Shapes.Rectangle selectionRectangle = new System.Windows.Shapes.Rectangle();
 
         public MainWindow()
         {
             InitializeComponent();
             sizeX = int.Parse(sizeXTextBox.Text);
             sizeY = int.Parse(sizeYTextBox.Text);
-            selectionRectangle = new System.Windows.Shapes.Rectangle();
+            myCanvas.Width = sizeX * grid;
+            myCanvas.Height = sizeY * grid;
+
+            // 
             selectionRectangle.Width = grid;
             selectionRectangle.Height = grid;
             selectionRectangle.Stroke = Brushes.Gray;
+            // Устанавливаем точку привязки в правый нижний угол (1,1)
+            selectionRectangle.RenderTransformOrigin = new System.Windows.Point(1, 1);
+
             Canvas.SetZIndex(selectionRectangle, 1);
             map = new int[sizeY, sizeX];
             images = new Image[sizeY, sizeX];
@@ -121,6 +127,7 @@ namespace MapEditor2
 
         private void Painting(int posX, int posY)
         {
+            if (posX >= sizeX || posY >= sizeY) { return; }
             
             int i = posY - (int)Math.Floor(((float)brushSizeValue / 2));
             for (; i < posY + brushSizeValue - (int)Math.Floor(((float)brushSizeValue / 2)); i++)
@@ -135,7 +142,7 @@ namespace MapEditor2
             }
         }
 
-        private void myCanvas_MouseDown(object sender, MouseButtonEventArgs e)
+        private void canvasWrapper_MouseDown(object sender, MouseButtonEventArgs e)
         {
             mouseDown = true;
             int posX = (int)(e.GetPosition(myCanvas).X / grid);
@@ -143,25 +150,19 @@ namespace MapEditor2
             Painting(posX, posY);
         }
 
-        private void myCanvas_MouseMove(object sender, MouseEventArgs e)
+        private void canvasWrapper_MouseMove(object sender, MouseEventArgs e)
         {
             int posX = (int)(e.GetPosition(myCanvas).X / grid);
             int posY = (int)(e.GetPosition(myCanvas).Y / grid);
-            posX = posX < sizeX ? posX : sizeX - 1; // Ограничивает квдрат выделения размерами карты
-            posY = posY < sizeY ? posY : sizeY - 1; // Ограничивает квдрат выделения размерами карты
             point.Content = $"{posX} x {posY}";
             Canvas.SetTop(selectionRectangle, posY * grid);
             Canvas.SetLeft(selectionRectangle, posX * grid);
 
             if (!mouseDown) return;
-            if (posX >= sizeX || posY >= sizeY)
-            {
-                mouseDown = false;
-            }
             Painting(posX, posY);
         }
 
-        private void myCanvas_MouseUp(object sender, MouseButtonEventArgs e)
+        private void canvasWrapper_MouseUp(object sender, MouseButtonEventArgs e)
         {
             mouseDown = false;
             UpdateOutput();
@@ -261,6 +262,13 @@ namespace MapEditor2
         private void brushSize_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             brushSizeValue = (int)brushSize.Value;
+            TranslateTransform translateTransform = new TranslateTransform();
+            translateTransform.X = -brushSizeValue * grid + grid;
+            translateTransform.Y = -brushSizeValue * grid + grid;
+            selectionRectangle.RenderTransform = translateTransform;
+            selectionRectangle.Width = brushSizeValue * grid;
+            selectionRectangle.Height = brushSizeValue * grid;
+
         }
 
         private void sizeYTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
@@ -323,6 +331,8 @@ namespace MapEditor2
             }
             map = newMap;
             images = newImages;
+            myCanvas.Width = sizeX * grid;
+            myCanvas.Height = sizeY * grid;
         }
     }
 }

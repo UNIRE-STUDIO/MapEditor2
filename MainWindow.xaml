@@ -16,7 +16,7 @@
             <RowDefinition Height="30"/>
             <RowDefinition Height="15*"/>
             <RowDefinition x:Name="outputRow"  Height="0"/>
-            <RowDefinition Height="25"/>
+            <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
         <!--Верхняя панель-->
         <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Background="#FF404040" Grid.ColumnSpan="3">
@@ -39,8 +39,11 @@
             </StackPanel>
         </StackPanel>
         <!--Canvas-->
-        <Border Grid.Column="0" Grid.Row="1" BorderBrush="#FF3D3D3D" BorderThickness="1" Margin="4,4,4,4" Background="#FF1A1A1A" Grid.ColumnSpan="3">
-            <Canvas x:Name="myCanvas" MouseDown="myCanvas_MouseDown" MouseMove="myCanvas_MouseMove" MouseUp="myCanvas_MouseUp" Margin="4"/>
+        <Border x:Name="canvasWrapper" PreviewMouseDown="canvasWrapper_MouseDown" PreviewMouseMove="canvasWrapper_MouseMove" PreviewMouseUp="canvasWrapper_MouseUp" Grid.Column="0" Grid.Row="1" BorderBrush="#FF3D3D3D" BorderThickness="1" Margin="4,4,4,4" Background="#FF1A1A1A" Grid.ColumnSpan="2" ClipToBounds="True">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <Canvas x:Name="myCanvas" Margin="4" HorizontalAlignment="Center" VerticalAlignment="Center" ClipToBounds="True">
+                </Canvas>
+            </ScrollViewer>
         </Border>
         <!--Tiles-->
         <Border Grid.Row="1" Grid.Column="3" BorderBrush="#FF3D3D3D" Margin="4,4,4,4" Background="#FF1A1A1A" BorderThickness="1" Grid.RowSpan="2">
@@ -53,7 +56,7 @@
         <GridSplitter Grid.Row="2" Grid.Column="0" Height="2" HorizontalAlignment="Stretch" VerticalAlignment="Top" Grid.ColumnSpan="2" Background="#FF1F1F1F"/>
         
         <StackPanel Grid.Column="0" Grid.Row="3" Orientation="Horizontal">
-            <Label x:Name="point" Foreground="#FFD6D6D6" Content="90 x 65" FontSize="10"/>
+            <Label x:Name="point" Foreground="#FFD6D6D6" Content="90 x 65" FontSize="10" VerticalAlignment="Center"/>
         </StackPanel>
         <StackPanel Grid.Column="1" Grid.Row="3" Orientation="Horizontal" FlowDirection="RightToLeft">
             <Button x:Name="copyMap" Content="В буфер" Width="100" Height="22" Click="copyMap_Click"/>
