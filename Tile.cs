@@ -15,6 +15,7 @@ namespace MapEditor2
         public int ID { get; set; }
         public StackPanel Panel { get; set; }
         public BitmapImage BitImage { get; set; }
+        public string ImagePath { get; set; }
         private Action<int> changeSelectedIdEvent;
         private Action<int, int> changeIdEvent; 
         private TextBox textBox;
@@ -22,6 +23,7 @@ namespace MapEditor2
         public Tile(int id, string path, Action<int> changeSelectedId, Action<int,int> changeId)
         {
             ID = id;
+            ImagePath = path;
             changeSelectedIdEvent = changeSelectedId;
             changeIdEvent = changeId;
             Panel = new StackPanel();

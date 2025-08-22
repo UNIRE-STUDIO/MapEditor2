@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection.PortableExecutable;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
@@ -142,7 +144,7 @@ namespace MapEditor2
             }
         }
 
-        private void canvasWrapper_MouseDown(object sender, MouseButtonEventArgs e)
+        private void CanvasWrapper_MouseDown(object sender, MouseButtonEventArgs e)
         {
             mouseDown = true;
             int posX = (int)(e.GetPosition(myCanvas).X / grid);
@@ -150,7 +152,7 @@ namespace MapEditor2
             Painting(posX, posY);
         }
 
-        private void canvasWrapper_MouseMove(object sender, MouseEventArgs e)
+        private void CanvasWrapper_MouseMove(object sender, MouseEventArgs e)
         {
             int posX = (int)(e.GetPosition(myCanvas).X / grid);
             int posY = (int)(e.GetPosition(myCanvas).Y / grid);
@@ -162,13 +164,13 @@ namespace MapEditor2
             Painting(posX, posY);
         }
 
-        private void canvasWrapper_MouseUp(object sender, MouseButtonEventArgs e)
+        private void CanvasWrapper_MouseUp(object sender, MouseButtonEventArgs e)
         {
             mouseDown = false;
             UpdateOutput();
         }
 
-        private void clearAll_Click(object sender, RoutedEventArgs e)
+        private void ClearAll_Click(object sender, RoutedEventArgs e)
         {
             MessageBoxResult result = MessageBox.Show(
                 "Вы уверены, что хотите очистить всю область? P.S Кнопку назад я ещё не реализовал",
@@ -182,12 +184,12 @@ namespace MapEditor2
             }
         }
 
-        private void erasing_Click(object sender, RoutedEventArgs e)
+        private void Erasing_Click(object sender, RoutedEventArgs e)
         {
             selectedId = 0;
         }
 
-        private void addSprite_Click(object sender, RoutedEventArgs e)
+        private void AddSprite_Click(object sender, RoutedEventArgs e)
         {
             var openDlg = new OpenFileDialog { Filter = "image files (*.png) | *.png" };
 
@@ -200,14 +202,15 @@ namespace MapEditor2
                     tiles.Add(id, new Tile(id,
                                            fs.Name,
                                            ChangeSelectedID,
-                                           (int oldId, int newId) =>
+                                           (int oldId, int newId) => // Делегат, который вызывается при изменении ID у тайла
                                            {
-                                               Tile t = tiles[oldId];
-                                               tiles.Remove(oldId);
-                                               tiles.Add(newId, t);
-                                               selectedId = newId;
-                                               ReplaсeTile(oldId, newId);
+                                               Tile t = tiles[oldId];   // записываем сами себя (с точки зрения тайла)
+                                               tiles.Remove(oldId);     // удаляем себя из словаря
+                                               tiles.Add(newId, t);     // добавляем уже с новым ID
+                                               selectedId = newId;      // выбираем этот измененный ID
+                                               ReplaсeTile(oldId, newId);// проходимся по всей карте и заменяем старый ID на новый
                                            }));
+                    
                     UIElement b = itemsPanel.Children[itemsPanel.Children.Count - 1];
                     itemsPanel.Children.Remove(b);
                     itemsPanel.Children.Add(tiles[id].Panel);
@@ -217,12 +220,12 @@ namespace MapEditor2
             }
         }
 
-        private void copyMap_Click(object sender, RoutedEventArgs e)
+        private void CopyMap_Click(object sender, RoutedEventArgs e)
         {
             Clipboard.SetText(output.Text);
         }
 
-        private void showOutputButton_Click(object sender, RoutedEventArgs e)
+        private void ShowOutputButton_Click(object sender, RoutedEventArgs e)
         {
             showOutput = !showOutput;
             if(showOutput)
@@ -259,7 +262,7 @@ namespace MapEditor2
             selectedId = id;
         }
 
-        private void brushSize_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void BrushSize_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             brushSizeValue = (int)brushSize.Value;
             TranslateTransform translateTransform = new TranslateTransform();
@@ -271,14 +274,14 @@ namespace MapEditor2
 
         }
 
-        private void sizeYTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        private void SizeYTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             if (!int.TryParse(e.Text, out _)) {
                 e.Handled = true;
             }
         }
 
-        private void sizeXTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        private void SizeXTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             if (!int.TryParse(e.Text, out _))
             {
@@ -333,6 +336,58 @@ namespace MapEditor2
             images = newImages;
             myCanvas.Width = sizeX * grid;
             myCanvas.Height = sizeY * grid;
+        }
+
+        private void ExportTiles_Click(object sender, RoutedEventArgs e)
+        {
+            if (tiles.Values.Count == 0) return;
+
+            var data = new List<object>();
+            foreach (var t in tiles.Values)
+            {
+                string nameImage = t.ImagePath.Split('\\')[t.ImagePath.Split('\\').Length-1];
+                string newImagePath = $"{Directory.GetCurrentDirectory()}\\{nameImage}";
+                File.Copy(t.ImagePath, newImagePath, overwrite: true);
+                data.Add(new { t.ID, ImagePath = newImagePath });       // Имя берётся аналогичное t.ID
+            }
+            string json = JsonSerializer.Serialize(data, new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+            File.WriteAllText("palette.json", json);
+        }
+
+        private void ImportTiles_Click(object sender, RoutedEventArgs e)
+        {
+            var openDlg = new OpenFileDialog { Filter = "image files (*.json) | *.json" };
+
+            if (true == openDlg.ShowDialog())
+            {
+                string json = File.ReadAllText(openDlg.FileName);
+                List<JsonElement> jsonElements = JsonSerializer.Deserialize<List<JsonElement>>(json);
+                foreach (var item in jsonElements)
+                {
+                    int id = item.GetProperty("id").GetInt32();
+                    tiles.Add(id, new Tile(id,
+                                       item.GetProperty("imagePath").GetString(),
+                                       ChangeSelectedID,
+                                       (int oldId, int newId) => // Делегат, который вызывается при изменении ID у тайла
+                                       {
+                                           Tile t = tiles[oldId];   // записываем сами себя (с точки зрения тайла)
+                                           tiles.Remove(oldId);     // удаляем себя из словаря
+                                           tiles.Add(newId, t);     // добавляем уже с новым ID
+                                           selectedId = newId;      // выбираем этот измененный ID
+                                           ReplaсeTile(oldId, newId);// проходимся по всей карте и заменяем старый ID на новый
+                                       }));
+
+                    UIElement b = itemsPanel.Children[itemsPanel.Children.Count - 1];
+                    itemsPanel.Children.Remove(b);
+                    itemsPanel.Children.Add(tiles[id].Panel);
+                    itemsPanel.Children.Add(b);
+                    selectedId = id;
+                }
+            }
         }
     }
 }
