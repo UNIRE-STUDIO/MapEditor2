@@ -342,20 +342,23 @@ namespace MapEditor2
         {
             if (tiles.Values.Count == 0) return;
 
-            var data = new List<object>();
-            foreach (var t in tiles.Values)
-            {
-                string nameImage = t.ImagePath.Split('\\')[t.ImagePath.Split('\\').Length-1];
-                string newImagePath = $"{Directory.GetCurrentDirectory()}\\{nameImage}";
-                File.Copy(t.ImagePath, newImagePath, overwrite: true);
-                data.Add(new { t.ID, ImagePath = newImagePath });       // Имя берётся аналогичное t.ID
+            var saveDlg = new SaveFileDialog { Filter = "image files (*.json) | *.json" };
+            if (true == saveDlg.ShowDialog()) {
+                var data = new List<object>();
+                foreach (var t in tiles.Values)
+                {
+                    string nameImage = t.ImagePath.Split('\\')[t.ImagePath.Split('\\').Length - 1];
+                    string newImagePath = $"{saveDlg.FileName.Replace(saveDlg.FileName.Split('\\')[saveDlg.FileName.Split('\\').Length - 1], "")}\\{nameImage}"; // Получаем путь к json файлу без его имени + имя изображения
+                    File.Copy(t.ImagePath, newImagePath); // Обработать already exist
+                    data.Add(new { t.ID, ImagePath = newImagePath });       // Имя берётся аналогичное t.ID
+                }
+                string json = JsonSerializer.Serialize(data, new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                });
+                File.WriteAllText(saveDlg.FileName, json);
             }
-            string json = JsonSerializer.Serialize(data, new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            });
-            File.WriteAllText("palette.json", json);
         }
 
         private void ImportTiles_Click(object sender, RoutedEventArgs e)
@@ -364,6 +367,7 @@ namespace MapEditor2
 
             if (true == openDlg.ShowDialog())
             {
+                tiles.Clear(); // Очищаем все тайлы перед импортом
                 string json = File.ReadAllText(openDlg.FileName);
                 List<JsonElement> jsonElements = JsonSerializer.Deserialize<List<JsonElement>>(json);
                 foreach (var item in jsonElements)
