@@ -41,12 +41,42 @@ namespace MapEditor2
         private int[,] map;
         private Image[,] images;
         private int selectedId = 0;
+        public int SelectedID
+        {
+            get { return selectedId; }
+            set { 
+                selectedId = value;
+                foreach (var item in tiles.Values)
+                {
+                    item.Deselect();
+                }
+                if (selectedId == 0) return;
+                tiles[selectedId].Select();
+            }
+        }
         private bool mouseDown = false;
         private bool showOutput = false;
         private System.Windows.Shapes.Rectangle selectionRectangle = new System.Windows.Shapes.Rectangle();
 
         private enum Tools { Pencil = 0, Move = 1, Select = 2}
+
         private Tools currentTool = Tools.Pencil;
+        private Tools CurrentTool
+        {
+            get { return currentTool; }
+            set 
+            { 
+                currentTool = value;
+                switch (currentTool) { 
+                    case Tools.Pencil:
+                        this.Cursor = Cursors.Arrow;
+                        break;
+                    case Tools.Move:
+                        this.Cursor = Cursors.SizeAll;
+                        break;
+                }
+            }
+        }
         private Point startMouseMove;
 
         public MainWindow()
@@ -143,7 +173,7 @@ namespace MapEditor2
                 for (; x < posX + brushSizeValue - (int)Math.Floor(((float)brushSizeValue / 2)); x++)
                 {
                     if (x >= sizeX || y >= sizeY || x < 0 || y < 0) continue;
-                    map[y, x] = selectedId;
+                    map[y, x] = SelectedID;
                     UpdateCanvas(x, y);
                 }
             }
@@ -155,11 +185,11 @@ namespace MapEditor2
             int posX = (int)(e.GetPosition(myCanvas).X / grid);
             int posY = (int)(e.GetPosition(myCanvas).Y / grid);
 
-            if (currentTool == Tools.Pencil)
+            if (CurrentTool == Tools.Pencil)
             {
                 Painting(posX, posY);
             }
-            else if (currentTool == Tools.Move) {
+            else if (CurrentTool == Tools.Move) {
                 startMouseMove = new Point(posX, posY);
             }
             
@@ -171,19 +201,19 @@ namespace MapEditor2
             int posY = (int)(e.GetPosition(myCanvas).Y / grid);
             point.Content = $"{posX} x {posY}";
 
-            if (currentTool == Tools.Pencil)
+            if (CurrentTool == Tools.Pencil)
             {
                 Canvas.SetTop(selectionRectangle, posY * grid);
                 Canvas.SetLeft(selectionRectangle, posX * grid);
                 if (!mouseDown) return;
                 Painting(posX, posY);
             }
-            else if (currentTool == Tools.Move) 
+            else if (CurrentTool == Tools.Move) 
             {
                 if (!mouseDown) return;
-                int dir = posX - startMouseMove.X;
-                point.Content = dir.ToString();
-                if (dir != 0)
+                int dirX = posX - startMouseMove.X;
+                int dirY = posY - startMouseMove.Y;
+                if (dirX < 0) // Смещение влево
                 {
                     for (int y = 0; y < sizeY; y++)
                     {
@@ -191,7 +221,69 @@ namespace MapEditor2
                         {
                             if (map[y, x] != 0)
                             {
-                                map[y, x + dir] = map[y, x];
+                                if (x + dirX < 0)
+                                {
+                                    map[y, x] = 0;
+                                    continue;
+                                }
+                                map[y, x + dirX] = map[y, x];
+                                map[y, x] = 0;
+                            }
+                        }
+                    }
+                }
+                else if (dirX > 0) // Смещение вправо
+                {
+                    for (int y = 0; y < sizeY; y++)
+                    {
+                        for (int x = sizeX-1; x >= 0; x--)
+                        {
+                            if (map[y, x] != 0)
+                            {
+                                if (x + dirX >= sizeX)
+                                {
+                                    map[y, x] = 0;
+                                    continue;
+                                }
+                                map[y, x + dirX] = map[y, x];
+                                map[y, x] = 0;
+                            }
+                        }
+                    }
+                }
+                if (dirY < 0) // Смещение вверх
+                {
+                    for (int y = 0; y < sizeY; y++)
+                    {
+                        for (int x = 0; x < sizeX; x++)
+                        {
+                            if (map[y, x] != 0)
+                            {
+                                if (y + dirY < 0)
+                                {
+                                    map[y, x] = 0;
+                                    continue;
+                                }
+                                map[y + dirY, x] = map[y, x];
+                                map[y, x] = 0;
+                            }
+                        }
+                    }
+                }
+                else if (dirY > 0) // Смещение вниз
+                {
+                    for (int y = sizeY - 1; y >= 0; y--)
+                    {
+                        for (int x = 0; x < sizeX; x++)
+                        {
+                            if (map[y, x] != 0)
+                            {
+                                if (y + dirY >= sizeY)
+                                {
+                                    map[y, x] = 0;
+                                    continue;
+                                }
+                                map[y + dirY, x] = map[y, x];
                                 map[y, x] = 0;
                             }
                         }
@@ -225,12 +317,17 @@ namespace MapEditor2
 
         private void Erasing_Click(object sender, RoutedEventArgs e)
         {
-            selectedId = 0;
+            SelectedID = 0;
+            CurrentTool = Tools.Pencil;
+        }
+        private void PencilTool_Click(object sender, RoutedEventArgs e)
+        {
+            CurrentTool = Tools.Pencil;
         }
 
         private void MoveTool_Click(object sender, RoutedEventArgs e)
         {
-            currentTool = Tools.Move;
+            CurrentTool = Tools.Move;
         }
 
         private void AddSprite_Click(object sender, RoutedEventArgs e)
@@ -251,15 +348,15 @@ namespace MapEditor2
                                                Tile t = tiles[oldId];   // записываем сами себя (с точки зрения тайла)
                                                tiles.Remove(oldId);     // удаляем себя из словаря
                                                tiles.Add(newId, t);     // добавляем уже с новым ID
-                                               selectedId = newId;      // выбираем этот измененный ID
+                                               SelectedID = newId;      // выбираем этот измененный ID
                                                ReplaсeTile(oldId, newId);// проходимся по всей карте и заменяем старый ID на новый
                                            }));
                     
                     UIElement b = itemsPanel.Children[itemsPanel.Children.Count - 1];
                     itemsPanel.Children.Remove(b);
-                    itemsPanel.Children.Add(tiles[id].Panel);
+                    itemsPanel.Children.Add(tiles[id].Wrapper);
                     itemsPanel.Children.Add(b);
-                    selectedId = id;
+                    SelectedID = id;
                 }
             }
         }
@@ -303,7 +400,8 @@ namespace MapEditor2
 
         private void ChangeSelectedID(int id)
         {
-            selectedId = id;
+            SelectedID = id;
+            CurrentTool = Tools.Pencil;
         }
 
         private void BrushSize_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -425,15 +523,15 @@ namespace MapEditor2
                                            Tile t = tiles[oldId];   // записываем сами себя (с точки зрения тайла)
                                            tiles.Remove(oldId);     // удаляем себя из словаря
                                            tiles.Add(newId, t);     // добавляем уже с новым ID
-                                           selectedId = newId;      // выбираем этот измененный ID
+                                           SelectedID = newId;      // выбираем этот измененный ID
                                            ReplaсeTile(oldId, newId);// проходимся по всей карте и заменяем старый ID на новый
                                        }));
 
                     UIElement b = itemsPanel.Children[itemsPanel.Children.Count - 1];
                     itemsPanel.Children.Remove(b);
-                    itemsPanel.Children.Add(tiles[id].Panel);
+                    itemsPanel.Children.Add(tiles[id].Wrapper);
                     itemsPanel.Children.Add(b);
-                    selectedId = id;
+                    SelectedID = id;
                 }
             }
         }

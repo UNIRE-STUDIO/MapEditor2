@@ -10,7 +10,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="248*"/>
             <ColumnDefinition Width="259*"/>
-            <ColumnDefinition Width="145*"/>
+            <ColumnDefinition Width="190"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
@@ -26,16 +26,18 @@
                     <ImageBrush ImageSource="/assets/lastik.png"/>
                 </Button.Background>
             </Button>
+            
+            <StackPanel Orientation="Horizontal" Background="#FF2F2F2F">
+                <Button x:Name="pencilTool" Width="25" Margin="5 2" Click="PencilTool_Click" Content="✏️" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="#FFD8D8D8"/>
+                <Slider x:Name="brushSize" Width="50" VerticalAlignment="Center" Margin="5 2" Maximum="6" SmallChange="1" Value="1" Minimum="1" ValueChanged="BrushSize_ValueChanged" IsSnapToTickEnabled="True"/>
+                <Label Content="{Binding ElementName=brushSize, Path=Value}" Foreground="#FFD6D6D6"/>
+            </StackPanel>
             <Button x:Name="moveTool" Width="25"  Margin="5 2" BorderBrush="{x:Null}" Click="MoveTool_Click" Foreground="{x:Null}">
                 <Button.Background>
                     <ImageBrush ImageSource="/assets/MoveTool.png"/>
                 </Button.Background>
             </Button>
-            <StackPanel Orientation="Horizontal" Background="#FF2F2F2F">
-                <Slider x:Name="brushSize" Width="50" VerticalAlignment="Center" Margin="5 2" Maximum="6" SmallChange="1" Value="1" Minimum="1" ValueChanged="BrushSize_ValueChanged" IsSnapToTickEnabled="True"/>
-                <Label Content="{Binding ElementName=brushSize, Path=Value}" Foreground="#FFD6D6D6"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="5 0">
+            <StackPanel Orientation="Horizontal" Margin="15 0">
                 <Label Foreground="#FFAFAFAF">x:</Label>
                 <TextBox x:Name="sizeXTextBox" TextWrapping="NoWrap" Text="10" Width="30" Height="20" HorizontalAlignment="Left" TextAlignment="Center" Background="#FF272727" BorderBrush="{x:Null}" Foreground="#FFAFAFAF" SelectionBrush="#CC2D74FF" SelectionTextBrush="{x:Null}" PreviewTextInput="SizeXTextBox_PreviewTextInput" MaxLines="1" MaxLength="3"/>
                 <Label Foreground="#FFAFAFAF">y:</Label>
@@ -50,14 +52,14 @@
             </StackPanel>
         </StackPanel>
         <!--Canvas-->
-        <Border x:Name="canvasWrapper" PreviewMouseDown="CanvasWrapper_MouseDown" PreviewMouseMove="CanvasWrapper_MouseMove" PreviewMouseUp="CanvasWrapper_MouseUp" Grid.Column="0" Grid.Row="1" BorderBrush="#FF3D3D3D" BorderThickness="1" Margin="4,4,4,4" Background="#FF1A1A1A" Grid.ColumnSpan="2" ClipToBounds="True">
+        <Border x:Name="canvasWrapper" PreviewMouseDown="CanvasWrapper_MouseDown" PreviewMouseMove="CanvasWrapper_MouseMove" PreviewMouseUp="CanvasWrapper_MouseUp" Grid.Column="0" Grid.Row="1" BorderBrush="#3D3D3D" BorderThickness="1" Margin="4,4,4,4" Background="#FF1A1A1A" Grid.ColumnSpan="2" ClipToBounds="True">
             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                 <Canvas x:Name="myCanvas" Margin="4" HorizontalAlignment="Center" VerticalAlignment="Center" ClipToBounds="True">
                 </Canvas>
             </ScrollViewer>
         </Border>
         <!--Tiles-->
-        <Border Grid.Row="1" Grid.Column="3" BorderBrush="#FF3D3D3D" Margin="4,4,4,4" Background="#FF1A1A1A" BorderThickness="1" Grid.RowSpan="2">
+        <Border Grid.Row="1" Grid.Column="3" BorderBrush="#3D3D3D" Margin="4,4,4,4" Background="#FF1A1A1A" BorderThickness="1" Grid.RowSpan="2">
             <WrapPanel x:Name="itemsPanel">
                 <Button x:Name="addSprite" Content="+" Background="{x:Null}" Foreground="#FFD6D6D6" FontWeight="Bold" FontSize="24" FontFamily="Cascadia Code" Width="32" Margin="5" Click="AddSprite_Click">
                     <Button.Resources>
@@ -85,7 +87,7 @@
             </Button>
         </StackPanel>
         <!--Вывод-->
-        <TextBox x:Name="output" Grid.Row="2" Grid.Column="0" Text="" Margin="4,4,4,4" TextWrapping="Wrap" BorderBrush="#FF3D3D3D" Background="#FF1E1E1E" Foreground="#FFD6D6D6" Grid.ColumnSpan="2"/>
+        <TextBox x:Name="output" Grid.Row="2" Grid.Column="0" Text="" Margin="4,4,4,4" TextWrapping="Wrap" BorderBrush="#3D3D3D" Background="#FF1E1E1E" Foreground="#FFD6D6D6" Grid.ColumnSpan="2"/>
         <GridSplitter Grid.Row="2" Grid.Column="0" Height="2" HorizontalAlignment="Stretch" VerticalAlignment="Top" Grid.ColumnSpan="2" Background="#FF1F1F1F"/>
         <StackPanel Grid.Column="0" Grid.Row="3" Orientation="Horizontal">
             <Label x:Name="point" Foreground="#FFD6D6D6" Content="90 x 65" FontSize="10" VerticalAlignment="Center"/>
