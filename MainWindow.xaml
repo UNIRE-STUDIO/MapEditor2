@@ -26,6 +26,11 @@
                     <ImageBrush ImageSource="/assets/lastik.png"/>
                 </Button.Background>
             </Button>
+            <Button x:Name="moveTool" Width="25"  Margin="5 2" BorderBrush="{x:Null}" Click="MoveTool_Click" Foreground="{x:Null}">
+                <Button.Background>
+                    <ImageBrush ImageSource="/assets/MoveTool.png"/>
+                </Button.Background>
+            </Button>
             <StackPanel Orientation="Horizontal" Background="#FF2F2F2F">
                 <Slider x:Name="brushSize" Width="50" VerticalAlignment="Center" Margin="5 2" Maximum="6" SmallChange="1" Value="1" Minimum="1" ValueChanged="BrushSize_ValueChanged" IsSnapToTickEnabled="True"/>
                 <Label Content="{Binding ElementName=brushSize, Path=Value}" Foreground="#FFD6D6D6"/>

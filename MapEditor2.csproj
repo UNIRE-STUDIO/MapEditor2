@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <None Remove="assets\lastik.png" />
+    <None Remove="assets\MoveTool.png" />
     <None Remove="sprites\base.png" />
     <None Remove="sprites\block03-1.png" />
     <None Remove="sprites\block03-2.png" />
@@ -20,6 +21,7 @@
 
   <ItemGroup>
     <Resource Include="assets\lastik.png" />
+    <Resource Include="assets\MoveTool.png" />
     <Resource Include="sprites\block03-1.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>

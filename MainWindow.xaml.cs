@@ -20,10 +20,11 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+
 namespace MapEditor2
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Нужно selectedId ввиде свойства и при записи прописать выделение выбранных тайлов
     /// </summary>
     public partial class MainWindow : Window
     {
@@ -44,6 +45,10 @@ namespace MapEditor2
         private bool showOutput = false;
         private System.Windows.Shapes.Rectangle selectionRectangle = new System.Windows.Shapes.Rectangle();
 
+        private enum Tools { Pencil = 0, Move = 1, Select = 2}
+        private Tools currentTool = Tools.Pencil;
+        private Point startMouseMove;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -62,18 +67,18 @@ namespace MapEditor2
             Canvas.SetZIndex(selectionRectangle, 1);
             map = new int[sizeY, sizeX];
             images = new Image[sizeY, sizeX];
-            for (int i = 0; i < sizeY; i++)
+            for (int y = 0; y < sizeY; y++)
             {
-                for (int j = 0; j < sizeX; j++)
+                for (int x = 0; x < sizeX; x++)
                 {
                     Image img = new Image();
-                    img.Source = backgroundTiles[j % 2 + (i % 2) * 2];
+                    img.Source = backgroundTiles[x % 2 + (y % 2) * 2];
                     img.Width = grid;
                     img.Height = grid;
-                    Canvas.SetTop(img, i * grid);
-                    Canvas.SetLeft(img, j * grid);
-                    images[i, j] = img;
-                    myCanvas.Children.Add(images[i,j]);
+                    Canvas.SetTop(img, y * grid);
+                    Canvas.SetLeft(img, x * grid);
+                    images[y, x] = img;
+                    myCanvas.Children.Add(images[y,x]);
                 }
             }
             myCanvas.Children.Add(selectionRectangle);
@@ -81,16 +86,16 @@ namespace MapEditor2
 
         private void UpdateCanvas()
         {
-            for (int i = 0; i < sizeY; i++)
+            for (int y = 0; y < sizeY; y++)
             {
-                for (int j = 0; j < sizeX; j++)
+                for (int x = 0; x < sizeX; x++)
                 {
-                    if (map[i,j] == 0)
+                    if (map[y,x] == 0)
                     {
-                        images[i, j].Source = backgroundTiles[j % 2 + (i % 2) * 2];
+                        images[y, x].Source = backgroundTiles[x % 2 + (y % 2) * 2];
                         continue;
                     }
-                    images[i, j].Source = tiles[map[i, j]].BitImage;
+                    images[y, x].Source = tiles[map[y, x]].BitImage;
                 }
             }
         }
@@ -110,18 +115,18 @@ namespace MapEditor2
             output.Text = "";
             output.Text += '[';
             StringBuilder stringBuilder = new StringBuilder();
-            for (int i = 0; i < sizeY; i++)
+            for (int y = 0; y < sizeY; y++)
             {
                 stringBuilder.Append('[');
-                for (int j = 0; j < sizeX; j++)
+                for (int x = 0; x < sizeX; x++)
                 {
-                    stringBuilder.Append(map[i, j].ToString() + ',');
-                    if (j == sizeX - 1) stringBuilder.Remove(stringBuilder.Length - 1, 1);
-                    if (j % 2 == 1) stringBuilder.Append("  ");
+                    stringBuilder.Append(map[y, x].ToString() + ',');
+                    if (x == sizeX - 1) stringBuilder.Remove(stringBuilder.Length - 1, 1);
+                    if (x % 2 == 1) stringBuilder.Append("  ");
                 }
                 stringBuilder.Append("],\n");
-                if (i == sizeY - 1) stringBuilder.Remove(stringBuilder.Length - 2, 1);
-                if (i % 2 == 1) stringBuilder.Append('\n');
+                if (y == sizeY - 1) stringBuilder.Remove(stringBuilder.Length - 2, 1);
+                if (y % 2 == 1) stringBuilder.Append('\n');
             }
             output.Text += stringBuilder.ToString();
             output.Text += ']';
@@ -131,15 +136,15 @@ namespace MapEditor2
         {
             if (posX >= sizeX || posY >= sizeY) { return; }
             
-            int i = posY - (int)Math.Floor(((float)brushSizeValue / 2));
-            for (; i < posY + brushSizeValue - (int)Math.Floor(((float)brushSizeValue / 2)); i++)
+            int y = posY - (int)Math.Floor(((float)brushSizeValue / 2));
+            for (; y < posY + brushSizeValue - (int)Math.Floor(((float)brushSizeValue / 2)); y++)
             {
-                int j = posX - (int)Math.Floor(((float)brushSizeValue / 2));
-                for (; j < posX + brushSizeValue - (int)Math.Floor(((float)brushSizeValue / 2)); j++)
+                int x = posX - (int)Math.Floor(((float)brushSizeValue / 2));
+                for (; x < posX + brushSizeValue - (int)Math.Floor(((float)brushSizeValue / 2)); x++)
                 {
-                    if (j >= sizeX || i >= sizeY || j < 0 || i < 0) continue;
-                    map[i, j] = selectedId;
-                    UpdateCanvas(j, i);
+                    if (x >= sizeX || y >= sizeY || x < 0 || y < 0) continue;
+                    map[y, x] = selectedId;
+                    UpdateCanvas(x, y);
                 }
             }
         }
@@ -149,7 +154,15 @@ namespace MapEditor2
             mouseDown = true;
             int posX = (int)(e.GetPosition(myCanvas).X / grid);
             int posY = (int)(e.GetPosition(myCanvas).Y / grid);
-            Painting(posX, posY);
+
+            if (currentTool == Tools.Pencil)
+            {
+                Painting(posX, posY);
+            }
+            else if (currentTool == Tools.Move) {
+                startMouseMove = new Point(posX, posY);
+            }
+            
         }
 
         private void CanvasWrapper_MouseMove(object sender, MouseEventArgs e)
@@ -157,11 +170,37 @@ namespace MapEditor2
             int posX = (int)(e.GetPosition(myCanvas).X / grid);
             int posY = (int)(e.GetPosition(myCanvas).Y / grid);
             point.Content = $"{posX} x {posY}";
-            Canvas.SetTop(selectionRectangle, posY * grid);
-            Canvas.SetLeft(selectionRectangle, posX * grid);
 
-            if (!mouseDown) return;
-            Painting(posX, posY);
+            if (currentTool == Tools.Pencil)
+            {
+                Canvas.SetTop(selectionRectangle, posY * grid);
+                Canvas.SetLeft(selectionRectangle, posX * grid);
+                if (!mouseDown) return;
+                Painting(posX, posY);
+            }
+            else if (currentTool == Tools.Move) 
+            {
+                if (!mouseDown) return;
+                int dir = posX - startMouseMove.X;
+                point.Content = dir.ToString();
+                if (dir != 0)
+                {
+                    for (int y = 0; y < sizeY; y++)
+                    {
+                        for (int x = 0; x < sizeX; x++)
+                        {
+                            if (map[y, x] != 0)
+                            {
+                                map[y, x + dir] = map[y, x];
+                                map[y, x] = 0;
+                            }
+                        }
+                    }
+                }
+                startMouseMove.X = posX; 
+                startMouseMove.Y = posY;
+                UpdateCanvas();
+            }
         }
 
         private void CanvasWrapper_MouseUp(object sender, MouseButtonEventArgs e)
@@ -187,6 +226,11 @@ namespace MapEditor2
         private void Erasing_Click(object sender, RoutedEventArgs e)
         {
             selectedId = 0;
+        }
+
+        private void MoveTool_Click(object sender, RoutedEventArgs e)
+        {
+            currentTool = Tools.Move;
         }
 
         private void AddSprite_Click(object sender, RoutedEventArgs e)
@@ -244,13 +288,13 @@ namespace MapEditor2
 
         private void ReplaсeTile(int currentId, int targetId)
         {
-            for (int i = 0; i < sizeY; i++)
+            for (int y = 0; y < sizeY; y++)
             {
-                for (int j = 0; j < sizeX; j++)
+                for (int x = 0; x < sizeX; x++)
                 {
-                    if (map[i, j] == currentId)
+                    if (map[y, x] == currentId)
                     {
-                        map[i, j] = targetId;
+                        map[y, x] = targetId;
                     }
                 }
             }
