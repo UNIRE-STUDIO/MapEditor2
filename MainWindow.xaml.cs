@@ -535,5 +535,19 @@ namespace MapEditor2
                 }
             }
         }
+
+        private void ImportMap_Click(object sender, RoutedEventArgs e)
+        {
+            var openDlg = new OpenFileDialog { Filter = "image files (*.json) | *.json" };
+
+            if (true == openDlg.ShowDialog())
+            {
+                tiles.Clear(); // Очищаем все тайлы перед импортом
+                string json = File.ReadAllText(openDlg.FileName);
+                List<List<int>> arrays = JsonSerializer.Deserialize<List<List<int>>>(json);
+                
+                
+            }
+        }
     }
 }
