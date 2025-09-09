@@ -120,7 +120,7 @@
                     </Style>
                 </Button.Resources>
             </Button>
-                <Button x:Name="showOutputButton" Content="Показать вывод" Width="100" Height="22" Margin="10,0" Click="ShowOutputButton_Click" Background="#FFA7A7A7" BorderBrush="{x:Null}">
+            <Button x:Name="showOutputButton" Content="Показать вывод" Width="100" Height="22" Margin="10,0" Click="ShowOutputButton_Click" Background="#FFA7A7A7" BorderBrush="{x:Null}">
                 <Button.Resources>
                     <Style TargetType="Border">
                         <Setter Property="CornerRadius" Value="4"/>
@@ -128,5 +128,6 @@
                 </Button.Resources>
             </Button>
         </StackPanel>
+
     </Grid>
 </Window>

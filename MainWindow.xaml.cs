@@ -125,7 +125,14 @@ namespace MapEditor2
                         images[y, x].Source = backgroundTiles[x % 2 + (y % 2) * 2];
                         continue;
                     }
-                    images[y, x].Source = tiles[map[y, x]].BitImage;
+                    if (tiles.Keys.Contains(map[y, x])) // Если тайл с нужным ID существует, то отрисовываем его
+                    {
+                        images[y, x].Source = tiles[map[y, x]].BitImage; 
+                    }
+                    else // Если тайла не существует то заливаем пурпурным цветом
+                    {
+                        images[y, x].Source = new DrawingImage { Drawing = new GeometryDrawing { Brush = Brushes.Purple } };
+                    }
                 }
             }
         }
@@ -542,11 +549,28 @@ namespace MapEditor2
 
             if (true == openDlg.ShowDialog())
             {
-                tiles.Clear(); // Очищаем все тайлы перед импортом
+                //tiles.Clear(); // Очищаем все тайлы перед импортом
                 string json = File.ReadAllText(openDlg.FileName);
                 List<List<int>> arrays = JsonSerializer.Deserialize<List<List<int>>>(json);
-                
-                
+                map = new int[arrays.Count, arrays[0].Count];
+                images = new Image[arrays.Count, arrays[0].Count];
+                myCanvas.Children.Clear();
+                for (int y = 0; y < arrays.Count; y++)
+                {
+                    for (int x = 0; x < arrays[y].Count; x++)
+                    {
+                        map[y, x] = arrays[y][x];
+                        Image img = new Image();
+                        img.Source = backgroundTiles[x % 2 + (y % 2) * 2];
+                        img.Width = grid;
+                        img.Height = grid;
+                        Canvas.SetTop(img, y * grid);
+                        Canvas.SetLeft(img, x * grid);
+                        images[y, x] = img;
+                        myCanvas.Children.Add(images[y, x]);
+                    }
+                }
+                UpdateCanvas();
             }
         }
     }
