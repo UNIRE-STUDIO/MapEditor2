@@ -38,6 +38,7 @@ namespace MapEditor2
                                                   new BitmapImage(new Uri(@"sprites\block03-2.png", UriKind.Relative)),
                                                   new BitmapImage(new Uri(@"sprites\block03-3.png", UriKind.Relative)),                        
                                                   new BitmapImage(new Uri(@"sprites\block03-4.png", UriKind.Relative))};
+        private BitmapImage emptyTile = new BitmapImage(new Uri(@"sprites\empty.jpg", UriKind.Relative));
         private int[,] map;
         private Image[,] images;
         private int selectedId = 0;
@@ -125,14 +126,8 @@ namespace MapEditor2
                         images[y, x].Source = backgroundTiles[x % 2 + (y % 2) * 2];
                         continue;
                     }
-                    if (tiles.Keys.Contains(map[y, x])) // Если тайл с нужным ID существует, то отрисовываем его
-                    {
-                        images[y, x].Source = tiles[map[y, x]].BitImage; 
-                    }
-                    else // Если тайла не существует то заливаем пурпурным цветом
-                    {
-                        images[y, x].Source = new DrawingImage { Drawing = new GeometryDrawing { Brush = Brushes.Purple } };
-                    }
+                    // Если тайл с нужным ID существует, то отрисовываем его   // Если нет, то заливаем пурпурным цветом
+                    images[y, x].Source = tiles.Keys.Contains(map[y, x]) ? tiles[map[y, x]].BitImage : emptyTile;
                 }
             }
         }
@@ -438,7 +433,7 @@ namespace MapEditor2
             }
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void AcceptResize_Click(object sender, RoutedEventArgs e)
         {
             if (sizeYTextBox.Text.Length == 0 || sizeXTextBox.Text.Length == 0) { return; }
             int oldSizeX = sizeX;
