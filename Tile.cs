@@ -59,7 +59,6 @@ namespace MapEditor2
                 if (int.TryParse(textBox.Text, out int newId) && newId < 20)
                 {
                     changeIdEvent.Invoke(ID, newId);
-                    ID = newId;
                 }
                 else
                 {
@@ -83,6 +82,11 @@ namespace MapEditor2
         {
             Wrapper.BorderBrush = null;
             Wrapper.Background = null;
+        }
+
+        public void SetIDForTextBox(string text)
+        {
+            textBox.Text = text;
         }
     }
 }

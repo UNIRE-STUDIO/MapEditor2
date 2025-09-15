@@ -95,7 +95,7 @@
         <!--Tiles-->
         <Border Grid.Row="2" Grid.Column="3" BorderBrush="#3D3D3D" Margin="4,4,4,4" Background="#FF1A1A1A" BorderThickness="1" Grid.RowSpan="2">
             <WrapPanel x:Name="itemsPanel">
-                <Button x:Name="addSprite" Content="+" Background="{x:Null}" Foreground="#FFD6D6D6" FontWeight="Bold" FontSize="24" FontFamily="Cascadia Code" Width="32" Margin="5" Click="AddSprite_Click">
+                <Button x:Name="addSprite" Content="+" Background="{x:Null}" Foreground="#FFD6D6D6" FontWeight="Bold" FontSize="24" FontFamily="Cascadia Code" Width="32" Margin="5" Click="AddTile_Click">
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="4"/>

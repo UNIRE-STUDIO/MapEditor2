@@ -33,7 +33,11 @@ namespace MapEditor2
         private static int grid = 16;
         private int brushSizeValue = 1;
 
+        // Тайлы
         private Dictionary<int, Tile> tiles = new Dictionary<int, Tile>();
+        private Action<int, int> tileChangeId;
+
+
         private BitmapImage[] backgroundTiles = { new BitmapImage(new Uri(@"sprites\block03-1.png", UriKind.Relative)),
                                                   new BitmapImage(new Uri(@"sprites\block03-2.png", UriKind.Relative)),
                                                   new BitmapImage(new Uri(@"sprites\block03-3.png", UriKind.Relative)),                        
@@ -113,6 +117,22 @@ namespace MapEditor2
                 }
             }
             myCanvas.Children.Add(selectionRectangle);
+
+            tileChangeId = (int oldId, int newId) => // Делегат, который вызывается при изменении ID у тайла
+            {
+                if (tiles.ContainsKey(newId))  // Если ID уже занято
+                {
+                    tiles[oldId].SetIDForTextBox(oldId.ToString()); // Возврощаем текстбоксу прежний ID
+                    return;
+                };
+                Tile t = tiles[oldId];   // записываем сами себя (с точки зрения тайла)
+                tiles.Remove(oldId);     // удаляем себя из словаря
+                tiles.Add(newId, t);     // добавляем уже с новым ID
+                SelectedID = newId;      // выбираем этот измененный ID
+                ReplaсeTile(oldId, newId);// проходимся по всей карте и заменяем старый ID на новый
+                t.ID = newId;
+                UpdateCanvas();
+            };
         }
 
         private void UpdateCanvas()
@@ -332,9 +352,9 @@ namespace MapEditor2
             CurrentTool = Tools.Move;
         }
 
-        private void AddSprite_Click(object sender, RoutedEventArgs e)
+        private void AddTile_Click(object sender, RoutedEventArgs e)
         {
-            var openDlg = new OpenFileDialog { Filter = "image files (*.png) | *.png" };
+            var openDlg = new OpenFileDialog { Filter = "image files (*.png;*.jpg) | *.png;*.jpg" };
 
             if (true == openDlg.ShowDialog())
             {
@@ -342,23 +362,14 @@ namespace MapEditor2
                 using (FileStream fs = new FileStream(openDlg.FileName, FileMode.Open, FileAccess.Read))
                 {
                     int id = tiles.Count == 0 ? 1 : tiles[tiles.Keys.Last()].ID + 1;
-                    tiles.Add(id, new Tile(id,
-                                           fs.Name,
-                                           ChangeSelectedID,
-                                           (int oldId, int newId) => // Делегат, который вызывается при изменении ID у тайла
-                                           {
-                                               Tile t = tiles[oldId];   // записываем сами себя (с точки зрения тайла)
-                                               tiles.Remove(oldId);     // удаляем себя из словаря
-                                               tiles.Add(newId, t);     // добавляем уже с новым ID
-                                               SelectedID = newId;      // выбираем этот измененный ID
-                                               ReplaсeTile(oldId, newId);// проходимся по всей карте и заменяем старый ID на новый
-                                           }));
+                    tiles.Add(id, new Tile(id, fs.Name, ChangeSelectedID, tileChangeId));
                     
                     UIElement b = itemsPanel.Children[itemsPanel.Children.Count - 1];
                     itemsPanel.Children.Remove(b);
                     itemsPanel.Children.Add(tiles[id].Wrapper);
                     itemsPanel.Children.Add(b);
                     SelectedID = id;
+                    UpdateCanvas();
                 }
             }
         }
@@ -442,7 +453,7 @@ namespace MapEditor2
             sizeX = int.Parse(sizeXTextBox.Text);
             int[,] newMap = new int[sizeY, sizeX];
             Image[,] newImages = new Image[sizeY, sizeX];
-            
+
             // Новая ось больше старой? Если да то перечисляем её
             for (int y = 0; y < (sizeY > oldSizeY ? sizeY : oldSizeY); y++)
             {
@@ -485,15 +496,18 @@ namespace MapEditor2
         private void ExportTiles_Click(object sender, RoutedEventArgs e)
         {
             if (tiles.Values.Count == 0) return;
-
             var saveDlg = new SaveFileDialog { Filter = "image files (*.json) | *.json" };
             if (true == saveDlg.ShowDialog()) {
                 var data = new List<object>();
                 foreach (var t in tiles.Values)
                 {
                     string nameImage = t.ImagePath.Split('\\')[t.ImagePath.Split('\\').Length - 1];
-                    string newImagePath = $"{saveDlg.FileName.Replace(saveDlg.FileName.Split('\\')[saveDlg.FileName.Split('\\').Length - 1], "")}\\{nameImage}"; // Получаем путь к json файлу без его имени + имя изображения
-                    File.Copy(t.ImagePath, newImagePath); // Обработать already exist
+                    string newImagePath = $"{saveDlg.FileName.Replace(saveDlg.FileName.Split('\\')[saveDlg.FileName.Split('\\').Length - 1], "")}{nameImage}"; // Получаем путь к json файлу без его имени + имя изображения
+
+                    if (t.ImagePath != newImagePath)
+                    {
+                        File.Copy(t.ImagePath, newImagePath); // Обработать already exist
+                    }
                     data.Add(new { t.ID, ImagePath = newImagePath });       // Имя берётся аналогичное t.ID
                 }
                 string json = JsonSerializer.Serialize(data, new JsonSerializerOptions
@@ -517,17 +531,7 @@ namespace MapEditor2
                 foreach (var item in jsonElements)
                 {
                     int id = item.GetProperty("id").GetInt32();
-                    tiles.Add(id, new Tile(id,
-                                       item.GetProperty("imagePath").GetString(),
-                                       ChangeSelectedID,
-                                       (int oldId, int newId) => // Делегат, который вызывается при изменении ID у тайла
-                                       {
-                                           Tile t = tiles[oldId];   // записываем сами себя (с точки зрения тайла)
-                                           tiles.Remove(oldId);     // удаляем себя из словаря
-                                           tiles.Add(newId, t);     // добавляем уже с новым ID
-                                           SelectedID = newId;      // выбираем этот измененный ID
-                                           ReplaсeTile(oldId, newId);// проходимся по всей карте и заменяем старый ID на новый
-                                       }));
+                    tiles.Add(id, new Tile(id, item.GetProperty("imagePath").GetString(), ChangeSelectedID, tileChangeId));
 
                     UIElement b = itemsPanel.Children[itemsPanel.Children.Count - 1];
                     itemsPanel.Children.Remove(b);
@@ -535,6 +539,7 @@ namespace MapEditor2
                     itemsPanel.Children.Add(b);
                     SelectedID = id;
                 }
+                UpdateCanvas();
             }
         }
 
@@ -547,12 +552,17 @@ namespace MapEditor2
                 //tiles.Clear(); // Очищаем все тайлы перед импортом
                 string json = File.ReadAllText(openDlg.FileName);
                 List<List<int>> arrays = JsonSerializer.Deserialize<List<List<int>>>(json);
-                map = new int[arrays.Count, arrays[0].Count];
-                images = new Image[arrays.Count, arrays[0].Count];
+
+                sizeY = arrays.Count;
+                sizeX = arrays[0].Count;
+                sizeYTextBox.Text = sizeY.ToString();
+                sizeXTextBox.Text = sizeX.ToString();
+                map = new int[sizeY, sizeX];
+                images = new Image[sizeY, sizeX];
                 myCanvas.Children.Clear();
-                for (int y = 0; y < arrays.Count; y++)
+                for (int y = 0; y < sizeY; y++)
                 {
-                    for (int x = 0; x < arrays[y].Count; x++)
+                    for (int x = 0; x < sizeX; x++)
                     {
                         map[y, x] = arrays[y][x];
                         Image img = new Image();
@@ -565,6 +575,8 @@ namespace MapEditor2
                         myCanvas.Children.Add(images[y, x]);
                     }
                 }
+                myCanvas.Width = sizeX * grid;
+                myCanvas.Height = sizeY * grid;
                 UpdateCanvas();
             }
         }

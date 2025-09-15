@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "imagePath": "C:\\Users\\VPR\\Documents\\MapEditor2\\ForMap\\brick.png"
+  },
+  {
+    "id": 2,
+    "imagePath": "C:\\Users\\VPR\\Documents\\MapEditor2\\ForMap\\stone.jpg"
+  },
+  {
+    "id": 3,
+    "imagePath": "C:\\Users\\VPR\\Documents\\MapEditor2\\ForMap\\water.jpg"
+  },
+  {
+    "id": 4,
+    "imagePath": "C:\\Users\\VPR\\Documents\\MapEditor2\\ForMap\\cover.jpg"
+  },
+  {
+    "id": 5,
+    "imagePath": "C:\\Users\\VPR\\Documents\\MapEditor2\\ForMap\\border0.jpg"
+  },
+  {
+    "id": 6,
+    "imagePath": "C:\\Users\\VPR\\Documents\\MapEditor2\\ForMap\\grass.jpg"
+  }
+]
