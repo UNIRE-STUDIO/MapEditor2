@@ -496,7 +496,7 @@ namespace MapEditor2
         private void ExportTiles_Click(object sender, RoutedEventArgs e)
         {
             if (tiles.Values.Count == 0) return;
-            var saveDlg = new SaveFileDialog { Filter = "image files (*.json) | *.json" };
+            var saveDlg = new SaveFileDialog { Filter = "image files (*.tl) | *.tl" };
             if (true == saveDlg.ShowDialog()) {
                 var data = new List<object>();
                 foreach (var t in tiles.Values)
@@ -521,7 +521,7 @@ namespace MapEditor2
 
         private void ImportTiles_Click(object sender, RoutedEventArgs e)
         {
-            var openDlg = new OpenFileDialog { Filter = "image files (*.json) | *.json" };
+            var openDlg = new OpenFileDialog { Filter = "image files (*.tl) | *.tl" };
 
             if (true == openDlg.ShowDialog())
             {
@@ -531,7 +531,8 @@ namespace MapEditor2
                 foreach (var item in jsonElements)
                 {
                     int id = item.GetProperty("id").GetInt32();
-                    tiles.Add(id, new Tile(id, item.GetProperty("imagePath").GetString(), ChangeSelectedID, tileChangeId));
+                    string imagePath = $"{openDlg.FileName.Replace(openDlg.SafeFileName, "")}{item.GetProperty("imagePath").GetString()}";
+                    tiles.Add(id, new Tile(id, imagePath, ChangeSelectedID, tileChangeId));
 
                     UIElement b = itemsPanel.Children[itemsPanel.Children.Count - 1];
                     itemsPanel.Children.Remove(b);
@@ -545,7 +546,7 @@ namespace MapEditor2
 
         private void ImportMap_Click(object sender, RoutedEventArgs e)
         {
-            var openDlg = new OpenFileDialog { Filter = "image files (*.json) | *.json" };
+            var openDlg = new OpenFileDialog { Filter = "image files (*.mp) | *.mp" };
 
             if (true == openDlg.ShowDialog())
             {
