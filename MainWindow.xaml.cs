@@ -508,7 +508,7 @@ namespace MapEditor2
                     {
                         File.Copy(t.ImagePath, newImagePath); // Обработать already exist
                     }
-                    data.Add(new { t.ID, ImagePath = newImagePath });       // Имя берётся аналогичное t.ID
+                    data.Add(new { t.ID, ImagePath = nameImage });       // Имя берётся аналогичное t.ID
                 }
                 string json = JsonSerializer.Serialize(data, new JsonSerializerOptions
                 {

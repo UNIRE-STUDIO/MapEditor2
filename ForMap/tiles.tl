@@ -1,30 +1,30 @@
 [
   {
     "id": 1,
-    "imagePath": "D:\\Documents\\MapEditor2\\ForMap\\brick.png"
+    "imagePath": "brick.png"
   },
   {
     "id": 2,
-    "imagePath": "D:\\Documents\\MapEditor2\\ForMap\\stone.jpg"
+    "imagePath": "stone.jpg"
   },
   {
     "id": 3,
-    "imagePath": "D:\\Documents\\MapEditor2\\ForMap\\water.jpg"
+    "imagePath": "water.jpg"
   },
   {
     "id": 4,
-    "imagePath": "D:\\Documents\\MapEditor2\\ForMap\\cover.jpg"
+    "imagePath": "cover.jpg"
   },
   {
     "id": 5,
-    "imagePath": "D:\\Documents\\MapEditor2\\ForMap\\border-0.jpg"
+    "imagePath": "border-0.jpg"
   },
   {
     "id": 6,
-    "imagePath": "D:\\Documents\\MapEditor2\\ForMap\\border-1.jpg"
+    "imagePath": "border-1.jpg"
   },
   {
     "id": 7,
-    "imagePath": "D:\\Documents\\MapEditor2\\ForMap\\grass.jpg"
+    "imagePath": "grass.jpg"
   }
 ]
